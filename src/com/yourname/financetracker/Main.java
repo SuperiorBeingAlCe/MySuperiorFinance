@@ -10,8 +10,9 @@ public class Main {
 
 	public static void main(String[] args) {
 		FinanceManager manager = FinanceXMLReader.load();
-        SwingUtilities.invokeLater(() ->
-                new MainFrame(manager).setVisible(true)
-        );
+		 SwingUtilities.invokeLater(() -> {
+	            MainFrame frame = new MainFrame(manager);
+	            frame.setVisible(true);
+	        });
     }
 	}

@@ -24,7 +24,7 @@ public class FinanceXMLReader {
         }
 
         try {
-            DocumentBuilder builder =
+            DocumentBuilder builder =	
                     DocumentBuilderFactory.newInstance().newDocumentBuilder();
             Document doc = builder.parse(file);
             doc.getDocumentElement().normalize();
@@ -72,6 +72,8 @@ public class FinanceXMLReader {
 
                 manager.addDebt(debt);
             }
+            
+            
 
         } catch (Exception e) {
             throw new RuntimeException("XML okunamadı", e);

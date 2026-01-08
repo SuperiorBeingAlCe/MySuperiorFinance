@@ -98,4 +98,61 @@ public class FinanceManager {
 	                .filter(d -> d.isOverdue(today))
 	                .toList();
 	    }
+	    
+	 // ======================
+	 // Listing / Display
+	 // ======================
+
+	 public void printAllIncomes() {
+	     System.out.println("==== GELİRLER ====");
+	     if (incomes.isEmpty()) {
+	         System.out.println("Gelir yok.");
+	     } else {
+	         for (Income income : incomes) {
+	             System.out.println("Tutar: " + income.getAmount() +
+	                                ", Tarih: " + income.getDate() +
+	                                ", Açıklama: " + income.getDescription());
+	         }
+	     }
+	 }
+
+	 public void printAllExpenses() {
+	     System.out.println("==== GİDERLER ====");
+	     if (expenses.isEmpty()) {
+	         System.out.println("Gider yok.");
+	     } else {
+	         for (Expense expense : expenses) {
+	             System.out.println("Tutar: " + expense.getAmount() +
+	                                ", Tarih: " + expense.getDate() +
+	                                ", Açıklama: " + expense.getDescription());
+	         }
+	     }
+	 }
+
+	 public void printAllDebts() {
+	     System.out.println("==== BORÇLAR ====");
+	     if (debts.isEmpty()) {
+	         System.out.println("Borç yok.");
+	     } else {
+	         for (Debt debt : debts) {
+	             System.out.println("Tutar: " + debt.getAmount() +
+	                                ", Tarih: " + debt.getDate() +
+	                                ", Açıklama: " + debt.getDescription() +
+	                                ", Son Tarih: " + debt.getDeadline() +
+	                                ", Ödendi mi? " + (debt.isPaid() ? "Evet" : "Hayır"));
+	         }
+	     }
+	 }
+
+	 // Opsiyonel: tek metotla hepsini göstermek
+	 public void printFullReport() {
+	     printAllIncomes();
+	     printAllExpenses();
+	     printAllDebts();
+	     System.out.println("==== ÖZET ====");
+	     System.out.println("Toplam Gelir: " + getTotalIncome());
+	     System.out.println("Toplam Gider: " + getTotalExpense());
+	     System.out.println("Toplam Ödenmemiş Borç: " + getTotalDebt());
+	     System.out.println("Net Bakiye: " + getNetBalance());
+	 }
 }

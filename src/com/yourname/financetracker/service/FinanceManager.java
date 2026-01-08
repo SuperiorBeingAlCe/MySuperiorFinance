@@ -29,6 +29,45 @@ public class FinanceManager {
 	    public void addDebt(double amount, LocalDate date, String description, LocalDate deadline) {
 	        debts.add(new Debt(amount, date, description, deadline));
 	    }
+	    
+	    // ======================
+	    // Delete / Remove
+	    // ======================
+	    public boolean removeIncome(Income income) {
+	        return incomes.remove(income);
+	    }
+
+	    public boolean removeExpense(Expense expense) {
+	        return expenses.remove(expense);
+	    }
+
+	    public boolean removeDebt(Debt debt) {
+	        return debts.remove(debt);
+	    }
+	    
+	    public boolean removeIncomeAt(int index) {
+	        if (index >= 0 && index < incomes.size()) {
+	            incomes.remove(index);
+	            return true;
+	        }
+	        return false;
+	    }
+
+	    public boolean removeExpenseAt(int index) {
+	        if (index >= 0 && index < expenses.size()) {
+	            expenses.remove(index);
+	            return true;
+	        }
+	        return false;
+	    }
+
+	    public boolean removeDebtAt(int index) {
+	        if (index >= 0 && index < debts.size()) {
+	            debts.remove(index);
+	            return true;
+	        }
+	        return false;
+	    }
 
 	    // ======================
 	    // Add (Persistence only)

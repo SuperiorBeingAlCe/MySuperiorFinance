@@ -1,11 +1,17 @@
 package com.yourname.financetracker;
 
+import javax.swing.SwingUtilities;
+
+import com.yourname.financetracker.core.FinanceXMLReader;
+import com.yourname.financetracker.service.FinanceManager;
 import com.yourname.financetracker.ui.MainFrame;
 
 public class Main {
 
 	public static void main(String[] args) {
-        new MainFrame().setVisible(true);
+		FinanceManager manager = FinanceXMLReader.load();
+        SwingUtilities.invokeLater(() ->
+                new MainFrame(manager).setVisible(true)
+        );
     }
-
-}
+	}

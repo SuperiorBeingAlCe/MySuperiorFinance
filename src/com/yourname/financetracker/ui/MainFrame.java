@@ -5,24 +5,27 @@ import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.time.LocalDate;
 
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-import javax.swing.UIManager;
+import javax.swing.SwingConstants;
+import javax.swing.border.EmptyBorder;
 
+import com.yourname.financetracker.core.FinanceXMLWriter;
 import com.yourname.financetracker.core.Mode;
 import com.yourname.financetracker.service.FinanceManager;
 
-public class MainFrame extends JFrame{
-	
-	private final FinanceManager manager = new FinanceManager();
+public class MainFrame extends JFrame {
+	private final FinanceManager manager;
 
-    // ===== STATE =====
     private Mode currentMode = Mode.INCOME;
 
     // ===== INPUTS =====
@@ -32,66 +35,92 @@ public class MainFrame extends JFrame{
     private JTextField deadlineField = new JTextField();
 
     // ===== LABELS =====
-    private JLabel incomeLabel = new JLabel("Toplam Gelir: 0");
-    private JLabel expenseLabel = new JLabel("Toplam Gider: 0");
-    private JLabel balanceLabel = new JLabel("Net Bakiye: 0");
+    private JLabel incomeLabel = new JLabel();
+    private JLabel expenseLabel = new JLabel();
+    private JLabel balanceLabel = new JLabel();
 
-    // ===== MODE BUTTONS =====
-    private JButton incomeModeBtn = new JButton("Gelir");
-    private JButton expenseModeBtn = new JButton("Gider");
-    private JButton debtModeBtn = new JButton("Borç");
+    // ===== BUTTONS =====
+    private JButton incomeModeBtn = new JButton("GELİR");
+    private JButton expenseModeBtn = new JButton("GİDER");
+    private JButton debtModeBtn = new JButton("BORÇ");
+    private JButton addBtn = new JButton("EKLE");
 
-    // ===== COLORS =====
-    private final Color defaultColor = UIManager.getColor("Button.background");
-    private final Color selectedColor = new Color(120, 200, 120);
+    // ===== THEME COLORS =====
+    private static final Color BG_MAIN = new Color(18, 18, 18);
+    private static final Color BG_PANEL = new Color(28, 28, 28);
+    private static final Color FG_TEXT = new Color(220, 220, 220);
 
-    public MainFrame() {
-        setTitle("Finans Takip Uygulaması");
-        setSize(650, 420);
+    private static final Color GREEN = new Color(0, 200, 120);
+    private static final Color RED = new Color(220, 80, 80);
+    private static final Color YELLOW = new Color(200, 180, 80);
+    private static final Color GRAY = new Color(70, 70, 70);
+
+    private static final Font FONT_MAIN = new Font("Consolas", Font.PLAIN, 14);
+    private static final Font FONT_BOLD = new Font("Consolas", Font.BOLD, 15);
+
+    public MainFrame(FinanceManager manager) {
+        this.manager = manager;
+
+        setTitle("FINANCE TERMINAL");
+        setSize(680, 440);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
-        setLayout(new BorderLayout(10, 10));
+        setLayout(new BorderLayout(12, 12));
+        getContentPane().setBackground(BG_MAIN);
 
-        // ================= ÜST PANEL =================
-        JPanel summaryPanel = new JPanel(new GridLayout(1, 3, 10, 10));
-        Font summaryFont = new Font("Arial", Font.BOLD, 14);
+        // ================= SUMMARY =================
+        JPanel summaryPanel = new JPanel(new GridLayout(1, 3, 12, 12));
+        summaryPanel.setBackground(BG_MAIN);
+        summaryPanel.setBorder(new EmptyBorder(10, 10, 0, 10));
 
-        incomeLabel.setFont(summaryFont);
-        expenseLabel.setFont(summaryFont);
-        balanceLabel.setFont(summaryFont);
+        styleLabel(incomeLabel, GREEN);
+        styleLabel(expenseLabel, RED);
+        styleLabel(balanceLabel, YELLOW);
 
         summaryPanel.add(incomeLabel);
         summaryPanel.add(expenseLabel);
         summaryPanel.add(balanceLabel);
 
-        // ================= ORTA PANEL =================
+        // ================= FORM =================
         JPanel formPanel = new JPanel(new GridLayout(4, 2, 10, 10));
+        formPanel.setBackground(BG_PANEL);
+        formPanel.setBorder(new EmptyBorder(15, 15, 15, 15));
 
-        formPanel.add(new JLabel("Tutar"));
-        formPanel.add(amountField);
+        formPanel.add(createLabel("TUTAR"));
+        formPanel.add(styleField(amountField));
 
-        formPanel.add(new JLabel("Açıklama"));
-        formPanel.add(descriptionField);
+        formPanel.add(createLabel("AÇIKLAMA"));
+        formPanel.add(styleField(descriptionField));
 
-        formPanel.add(new JLabel("Tarih"));
-        dateField.setEnabled(false);
+        formPanel.add(createLabel("TARİH"));
         dateField.setText(LocalDate.now().toString());
-        formPanel.add(dateField);
+        dateField.setEnabled(false);
+        formPanel.add(styleField(dateField));
 
-        formPanel.add(new JLabel("Son Ödeme Tarihi (Borç)"));
+        formPanel.add(createLabel("SON ÖDEME (BORÇ)"));
         deadlineField.setEnabled(false);
-        formPanel.add(deadlineField);
+        formPanel.add(styleField(deadlineField));
 
-        // ================= ALT PANEL =================
+        // ================= BOTTOM =================
         JPanel bottomPanel = new JPanel(new BorderLayout());
+        bottomPanel.setBackground(BG_MAIN);
+        bottomPanel.setBorder(new EmptyBorder(0, 10, 10, 10));
 
         JPanel modePanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 5));
+        modePanel.setBackground(BG_MAIN);
+
+        styleButton(incomeModeBtn);
+        styleButton(expenseModeBtn);
+        styleButton(debtModeBtn);
+
         modePanel.add(incomeModeBtn);
         modePanel.add(expenseModeBtn);
         modePanel.add(debtModeBtn);
 
-        JPanel actionPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        JButton addBtn = new JButton("Ekle");
+        JPanel actionPanel = new JPanel();
+        actionPanel.setBackground(BG_MAIN);
+        styleButton(addBtn);
+        addBtn.setForeground(YELLOW);
         actionPanel.add(addBtn);
 
         bottomPanel.add(modePanel, BorderLayout.NORTH);
@@ -105,54 +134,62 @@ public class MainFrame extends JFrame{
         incomeModeBtn.addActionListener(e -> switchMode(Mode.INCOME));
         expenseModeBtn.addActionListener(e -> switchMode(Mode.EXPENSE));
         debtModeBtn.addActionListener(e -> switchMode(Mode.DEBT));
-
         addBtn.addActionListener(e -> handleAdd());
 
-        // DEFAULT MODE
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                FinanceXMLWriter.save(manager);
+            }
+        });
+
         switchMode(Mode.INCOME);
+        refresh();
     }
 
-    // ================= MODE SWITCH =================
+    // ================= MODE =================
     private void switchMode(Mode mode) {
         currentMode = mode;
 
-        incomeModeBtn.setBackground(defaultColor);
-        expenseModeBtn.setBackground(defaultColor);
-        debtModeBtn.setBackground(defaultColor);
+        resetModeButtons();
 
         if (mode == Mode.INCOME) {
-            incomeModeBtn.setBackground(selectedColor);
+            incomeModeBtn.setBackground(GREEN);
             deadlineField.setEnabled(false);
             deadlineField.setText("");
         } else if (mode == Mode.EXPENSE) {
-            expenseModeBtn.setBackground(selectedColor);
+            expenseModeBtn.setBackground(RED);
             deadlineField.setEnabled(false);
             deadlineField.setText("");
         } else {
-            debtModeBtn.setBackground(selectedColor);
+            debtModeBtn.setBackground(YELLOW);
             deadlineField.setEnabled(true);
         }
     }
 
-    // ================= ADD LOGIC =================
+    private void resetModeButtons() {
+        incomeModeBtn.setBackground(GRAY);
+        expenseModeBtn.setBackground(GRAY);
+        debtModeBtn.setBackground(GRAY);
+    }
+
+    // ================= LOGIC =================
     private void handleAdd() {
         try {
             double amount = Double.parseDouble(amountField.getText());
             String description = descriptionField.getText();
             LocalDate date = LocalDate.now();
 
-            dateField.setText(date.toString());
-
             switch (currentMode) {
                 case INCOME -> manager.addIncome(amount, date, description);
                 case EXPENSE -> manager.addExpense(amount, date, description);
                 case DEBT -> {
                     if (deadlineField.getText().isBlank()) {
-                        showError("Borç için son ödeme tarihi zorunludur.");
+                        showError("BORÇ İÇİN SON TARİH ZORUNLU");
                         return;
                     }
-                    LocalDate deadline = LocalDate.parse(deadlineField.getText());
-                    manager.addDebt(amount, date, description, deadline);
+                    manager.addDebt(amount, date, description,
+                            LocalDate.parse(deadlineField.getText()));
                 }
             }
 
@@ -160,26 +197,53 @@ public class MainFrame extends JFrame{
             clearInputs();
 
         } catch (Exception e) {
-            showError("Tutar formatı veya tarih hatalı.");
+            showError("VERİLER GEÇERSİZ");
         }
     }
 
-    // ================= HELPERS =================
     private void refresh() {
-        incomeLabel.setText("Toplam Gelir: " + manager.getTotalIncome());
-        expenseLabel.setText("Toplam Gider: " + manager.getTotalExpense());
-        balanceLabel.setText("Net Bakiye: " + manager.getNetBalance());
+        incomeLabel.setText("GELİR : " + manager.getTotalIncome());
+        expenseLabel.setText("GİDER : " + manager.getTotalExpense());
+        balanceLabel.setText("BAKİYE : " + manager.getNetBalance());
     }
 
     private void clearInputs() {
         amountField.setText("");
         descriptionField.setText("");
-        if (currentMode != Mode.DEBT) {
-            deadlineField.setText("");
-        }
+        deadlineField.setText("");
     }
 
-    private void showError(String message) {
-        JOptionPane.showMessageDialog(this, message, "Hata", JOptionPane.ERROR_MESSAGE);
+    private void showError(String msg) {
+        JOptionPane.showMessageDialog(this, msg, "HATA", JOptionPane.ERROR_MESSAGE);
+    }
+
+    // ================= STYLE HELPERS =================
+    private JLabel createLabel(String text) {
+        JLabel lbl = new JLabel(text);
+        lbl.setForeground(FG_TEXT);
+        lbl.setFont(FONT_MAIN);
+        return lbl;
+    }
+
+    private JTextField styleField(JTextField field) {
+        field.setBackground(new Color(40, 40, 40));
+        field.setForeground(FG_TEXT);
+        field.setCaretColor(FG_TEXT);
+        field.setFont(FONT_MAIN);
+        field.setBorder(BorderFactory.createLineBorder(GRAY));
+        return field;
+    }
+
+    private void styleButton(JButton btn) {
+        btn.setBackground(GRAY);
+        btn.setForeground(FG_TEXT);
+        btn.setFont(FONT_BOLD);
+        btn.setFocusPainted(false);
+    }
+
+    private void styleLabel(JLabel lbl, Color color) {
+        lbl.setForeground(color);
+        lbl.setFont(FONT_BOLD);
+        lbl.setHorizontalAlignment(SwingConstants.CENTER);
     }
 }

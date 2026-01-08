@@ -1,0 +1,20 @@
+<finance>
+    <incomes>
+        <income amount="5000" date="2026-01-01">
+            <description>Maaş</description>
+        </income>
+    </incomes>
+
+    <expenses>
+        <expense amount="1200" date="2026-01-02">
+            <description>Kira</description>
+        </expense>
+    </expenses>
+
+    <debts>
+        <debt amount="3000" date="2026-01-01" deadline="2026-03-01" paid="false">
+            <description>Kredi Kartı</description>
+        </debt>
+    </debts>
+</finance>
+
